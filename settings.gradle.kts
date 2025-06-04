@@ -11,7 +11,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+
+    versionCatalogs {
+        create("libs") {
+            from(files("libs.versions.toml"))
+        }
+    }
 }
 
-rootProject.name = "multiplatform-library-template"
+rootProject.name = "pag-kmp"
 include(":library")
