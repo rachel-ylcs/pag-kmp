@@ -1,8 +1,19 @@
 [versions]
+kotlin = "2.2.0-RC2"
+cmp = "1.8.1"
 agp = "8.11.0-alpha03"
-kotlin = "2.2.0-RC"
+coroutines = "1.10.2"
+pag = "4.4.31"
 
 [libraries]
+# Common
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "cmp" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "cmp" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "cmp" }
+
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+
+pag-android = { module = "com.tencent.tav:libpag", version.ref = "pag" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

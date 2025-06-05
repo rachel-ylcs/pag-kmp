@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -8,10 +9,37 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-group = "io.github.ylcs"
+group = "love.yinlin.pag"
 version = "1.0.0"
 
+enum class GradlePlatform {
+    Windows, Linux, Mac;
+
+    override fun toString(): String = when (this) {
+        Windows -> "win"
+        Linux -> "linux"
+        Mac -> "mac"
+    }
+}
+
+val desktopPlatform = System.getProperty("os.name").let { when {
+    it.lowercase().startsWith("windows") -> GradlePlatform.Windows
+    it.lowercase().startsWith("mac") -> GradlePlatform.Mac
+    else -> GradlePlatform.Linux
+} }
+
+val desktopArchitecture = System.getProperty("os.arch").let { when {
+    it.lowercase().startsWith("aarch64") -> "aarch64"
+    it.lowercase().startsWith("arm") -> "arm"
+    it.lowercase().startsWith("amd64") -> "x86_64"
+    else -> it
+} }!!
+
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     jvm("desktop")
     androidTarget {
         publishLibraryVariants("release")
@@ -20,21 +48,39 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_21)
         }
     }
-    iosX64()
+
     iosArm64()
-    iosSimulatorArm64()
+    if (desktopPlatform == GradlePlatform.Mac) {
+        if (desktopArchitecture == "aarch64") iosSimulatorArm64() else iosX64()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {}
+    }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.ui)
 
+                implementation(libs.kotlinx.coroutines)
+            }
+        }
+
+        androidMain.get().apply {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.pag.android)
             }
         }
     }
 }
 
 android {
-    namespace = "io.github.ylcs"
+    namespace = "love.yinlin.pag"
     compileSdk = 35
     defaultConfig {
         minSdk = 29
