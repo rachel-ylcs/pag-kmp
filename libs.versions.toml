@@ -1,21 +1,23 @@
 [versions]
-kotlin = "2.2.0-RC2"
-cmp = "1.8.1"
-agp = "8.11.0-alpha03"
+agp = "8.10.1"
+kotlin = "2.1.21"
+cmp = "1.8.2"
 coroutines = "1.10.2"
 pag = "4.4.31"
 
 [libraries]
-# Common
-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "cmp" }
-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "cmp" }
-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "cmp" }
-
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version = "coroutines" }
+lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version = "2.9.1" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.7.1" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.1" }
 pag-android = { module = "com.tencent.tav:libpag", version.ref = "pag" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.29.0" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "cmp" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.33.0" }

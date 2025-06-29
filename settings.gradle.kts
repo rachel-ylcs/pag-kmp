@@ -19,5 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "pag-kmp"
+rootProject.name = "libpag-compose"
 include(":library")
+include(":example")

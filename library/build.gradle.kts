@@ -1,39 +1,16 @@
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-group = "love.yinlin.pag"
+group = "love.yinlin"
 version = "1.0.0"
-
-enum class GradlePlatform {
-    Windows, Linux, Mac;
-
-    override fun toString(): String = when (this) {
-        Windows -> "win"
-        Linux -> "linux"
-        Mac -> "mac"
-    }
-}
-
-val desktopPlatform = System.getProperty("os.name").let { when {
-    it.lowercase().startsWith("windows") -> GradlePlatform.Windows
-    it.lowercase().startsWith("mac") -> GradlePlatform.Mac
-    else -> GradlePlatform.Linux
-} }
-
-val desktopArchitecture = System.getProperty("os.arch").let { when {
-    it.lowercase().startsWith("aarch64") -> "aarch64"
-    it.lowercase().startsWith("arm") -> "arm"
-    it.lowercase().startsWith("amd64") -> "x86_64"
-    else -> it
-} }!!
 
 kotlin {
     compilerOptions {
@@ -41,49 +18,57 @@ kotlin {
     }
 
     jvm("desktop")
+
     androidTarget {
         publishLibraryVariants("release")
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 
+    iosX64()
     iosArm64()
-    if (desktopPlatform == GradlePlatform.Mac) {
-        if (desktopArchitecture == "aarch64") iosSimulatorArm64() else iosX64()
-    }
+    iosSimulatorArm64()
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser {}
+        browser()
     }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.compose.runtime)
-                implementation(libs.compose.foundation)
-                implementation(libs.compose.ui)
-
-                implementation(libs.kotlinx.coroutines)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.ui)
             }
         }
 
-        androidMain.get().apply {
-            dependsOn(commonMain)
+        val androidMain by getting {
             dependencies {
                 implementation(libs.pag.android)
             }
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
+
+        listOf(
+            iosX64Main,
+            iosArm64Main,
+            iosSimulatorArm64Main
+        ).forEach {
+            it.get().dependsOn(iosMain)
         }
     }
 }
 
 android {
-    namespace = "love.yinlin.pag"
+    namespace = "love.yinlin.libpag"
     compileSdk = 35
     defaultConfig {
-        minSdk = 29
+        minSdk = 24
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -92,35 +77,33 @@ android {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-
+    publishToMavenCentral()
     signAllPublications()
-
-    coordinates(group.toString(), "library", version.toString())
+    coordinates(group.toString(), "libpag-compose", version.toString())
 
     pom {
-        name = "My library"
-        description = "A library."
-        inceptionYear = "2024"
-        url = "https://github.com/kotlin/multiplatform-library-template/"
+        name = "libpag-compose"
+        description = "A library for integrating PAG (Portable Animated Graphics) with Compose Multiplatform."
+        inceptionYear = "2025"
+        url = "https://github.com/rachel-ylcs/pag-kmp/"
         licenses {
             license {
-                name = "XXX"
-                url = "YYY"
-                distribution = "ZZZ"
+                name = "Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://raw.githubusercontent.com/rachel-ylcs/pag-kmp/refs/heads/main/LICENSE"
             }
         }
         developers {
             developer {
-                id = "XXX"
-                name = "YYY"
-                url = "ZZZ"
+                id = "ylcs"
+                name = "银临茶舍"
+                url = "https://github.com/rachel-ylcs/"
             }
         }
         scm {
-            url = "XXX"
-            connection = "YYY"
-            developerConnection = "ZZZ"
+            url = "https://github.com/rachel-ylcs/pag-kmp/"
+            connection = "scm:git:git://github.com/rachel-ylcs/pag-kmp.git"
+            developerConnection = "scm:git:ssh://git@ssh.github.com:443/rachel-ylcs/pag-kmp.git"
         }
     }
 }
