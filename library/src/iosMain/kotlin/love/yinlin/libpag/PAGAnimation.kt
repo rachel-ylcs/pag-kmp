@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.unit.IntSize
 import cocoapods.libpag.*
 import kotlinx.cinterop.*
 import org.jetbrains.skia.Image
@@ -41,60 +42,83 @@ fun createImageFromPixelBuffer(pixelBuffer: CVPixelBufferRef): Image? {
     )
 }
 
-@OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun PAGAnimation(
-    state: PAGAnimationState,
+    data: ByteArray?,
     modifier: Modifier,
+    isPlaying: Boolean,
+    progress: Double,
+    repeatCount: Int,
+    scaleMode: PAGConfig.ScaleMode,
+    listener: PAGConfig.AnimationListener,
 ) {
-    val pagView = remember { mutableStateOf<PAGImageView?>(null) }
+    val pagView = remember { mutableStateOf<PAGView?>(null) }
 
     UIKitView(
         modifier = modifier,
         factory = {
-            PAGImageView().apply {
+            pagView.value ?: PAGView().apply {
                 pagView.value = this
-                setRepeatCount(state.repeatCount)
-//                setScaleMode(when (state.scaleMode) {
-//                    PAGConfig.ScaleMode.None -> PAGScaleModeNone
-//                    PAGConfig.ScaleMode.Stretch -> PAGScaleModeStretch
-//                    PAGConfig.ScaleMode.LetterBox -> PAGScaleModeLetterBox
-//                    PAGConfig.ScaleMode.Zoom -> PAGScaleModeZoom
-//                })
-                setCacheAllFramesInMemory(state.cacheAllFramesInMemory)
             }
         },
         update = { view ->
-            view.setRepeatCount(state.repeatCount)
-//            view.setScaleMode(when (state.scaleMode) {
-//                PAGConfig.ScaleMode.None -> PAGScaleModeNone
-//                PAGConfig.ScaleMode.Stretch -> PAGScaleModeStretch
-//                PAGConfig.ScaleMode.LetterBox -> PAGScaleModeLetterBox
-//                PAGConfig.ScaleMode.Zoom -> PAGScaleModeZoom
-//            })
-            view.setCacheAllFramesInMemory(state.cacheAllFramesInMemory)
+            view.setRepeatCount(repeatCount)
+            view.setScaleMode(when (scaleMode) {
+                PAGConfig.ScaleMode.None -> PAGScaleModeNone
+                PAGConfig.ScaleMode.Stretch -> PAGScaleModeStretch
+                PAGConfig.ScaleMode.LetterBox -> PAGScaleModeLetterBox
+                PAGConfig.ScaleMode.Zoom -> PAGScaleModeZoom
+            })
+        }
+    )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+@Composable
+actual fun PAGImageAnimation(
+    data: ByteArray?,
+    modifier: Modifier,
+    isPlaying: Boolean,
+    progress: Double,
+    repeatCount: Int,
+    renderScale: Float,
+    cacheAllFramesInMemory: Boolean,
+    listener: PAGConfig.AnimationListener,
+) {
+    val pagImageView = remember { mutableStateOf<PAGImageView?>(null) }
+
+    UIKitView(
+        modifier = modifier,
+        factory = {
+            pagImageView.value ?: PAGImageView().apply {
+                pagImageView.value = this
+            }
+        },
+        update = { view ->
+            view.setRepeatCount(repeatCount)
+            view.setCacheAllFramesInMemory(cacheAllFramesInMemory)
         }
     )
 
-    LaunchedEffect(state.data) {
-        pagView.value?.let { view ->
-            val pagFile = state.data?.usePinned {
+    LaunchedEffect(data) {
+        pagImageView.value?.let { view ->
+            val pagFile = data?.usePinned {
                 PAGFile.Load(it.addressOf(0), it.get().size.toULong())
             }
             view.setComposition(pagFile)
         }
     }
 
-    LaunchedEffect(state.isPlaying) {
-        pagView.value?.let { view ->
-            if (state.isPlaying) view.play()
+    LaunchedEffect(isPlaying) {
+        pagImageView.value?.let { view ->
+            if (isPlaying) view.play()
             else view.pause()
         }
     }
 
-    LaunchedEffect(state.progress) {
-        pagView.value?.let { view ->
-            view.setCurrentFrame((state.progress * view.numFrames().toDouble()).toULong())
+    LaunchedEffect(progress) {
+        pagImageView.value?.let { view ->
+            view.setCurrentFrame((progress * view.numFrames().toDouble()).toULong())
             view.flush()
         }
     }
@@ -103,14 +127,16 @@ actual fun PAGAnimation(
 @OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun rememberPAGPainter(
-    state: PAGAnimationState,
+    data: ByteArray?,
+    size: IntSize,
+    progress: Double,
 ): Painter {
     val player = remember { PAGPlayer() }
     val surface = remember { mutableStateOf<PAGSurface?>(null) }
     val painter = remember { mutableStateOf<Painter>(BitmapPainter(ImageBitmap(1, 1))) }
 
-    LaunchedEffect(state.data) {
-        state.data?.usePinned {
+    LaunchedEffect(data) {
+        data?.usePinned {
             PAGFile.Load(it.addressOf(0), it.get().size.toULong())
         }?.let { pagFile ->
             player.setComposition(pagFile)
@@ -124,8 +150,8 @@ actual fun rememberPAGPainter(
         }
     }
 
-    LaunchedEffect(state.progress, surface.value) {
-        player.setProgress(state.progress)
+    LaunchedEffect(progress, surface.value) {
+        player.setProgress(progress)
         player.flush()
         surface.value?.getCVPixelBuffer()?.let {
             createImageFromPixelBuffer(it)?.let {

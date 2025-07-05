@@ -12,6 +12,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,13 +23,38 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 import libpag_compose.example.generated.resources.Res
 import love.yinlin.libpag.PAGAnimation
-import love.yinlin.libpag.PAGAnimationState
+import love.yinlin.libpag.PAGConfig
+import love.yinlin.libpag.PAGImageAnimation
 import love.yinlin.libpag.rememberPAGPainter
+
+@Stable
+class PAGAnimationState {
+    var data: ByteArray? by mutableStateOf(null)
+    var isPlaying: Boolean by mutableStateOf(false)
+    var isCompleted: Boolean by mutableStateOf(false)
+    var progress: Double by mutableStateOf(0.0)
+}
 
 @Composable
 fun PAGApp() {
     val pagState = remember { PAGAnimationState() }
     var usePainter by remember { mutableStateOf(false) }
+    val listener = PAGConfig.rememberAnimationListener(
+        onStart = {
+            pagState.isCompleted = false
+            println("PAG 动画开始播放")
+        },
+        onEnd = {
+            pagState.isCompleted = true
+            println("PAG 动画播放完毕")
+        },
+        onRepeat = { println("PAG 动画重新开始播放") },
+        onUpdate = { _, progress ->
+            if (!usePainter) {
+                pagState.progress = progress
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
         pagState.data = Res.readBytes("files/test.pag")
@@ -36,16 +62,12 @@ fun PAGApp() {
 
         while (true) {
             delay(1000 / 60)
-            if (pagState.isPlaying) {
-                pagState.progress = (pagState.progress + 1 / 174.0)
-                if (pagState.progress > 1.0) pagState.progress = 0.0
+            if (usePainter && pagState.isPlaying) {
+                var progress = pagState.progress
+                progress = (progress + 1 / 174.0)
+                if (progress >= 1.0) progress = 0.0
+                pagState.progress = progress
             }
-        }
-    }
-
-    LaunchedEffect(pagState.isCompleted) {
-        if (pagState.isCompleted) {
-            println("PAG 动画播放完毕")
         }
     }
 
@@ -55,12 +77,18 @@ fun PAGApp() {
     ) {
         if (!usePainter) {
             PAGAnimation(
-                state = pagState,
-                modifier = Modifier.fillMaxSize()
+                data = pagState.data,
+                modifier = Modifier.fillMaxSize(),
+                isPlaying = pagState.isPlaying,
+//                progress = pagState.progress,
+                listener = listener
             )
         } else {
             Image(
-                painter = rememberPAGPainter(state = pagState),
+                painter = rememberPAGPainter(
+                    data = pagState.data,
+                    progress = pagState.progress
+                ),
                 contentDescription = "",
                 modifier = Modifier.fillMaxSize()
             )
@@ -69,7 +97,7 @@ fun PAGApp() {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Test PAG Animation")
+            Text(text = remember(pagState.progress) { "PAG play progress: ${pagState.progress}" })
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
