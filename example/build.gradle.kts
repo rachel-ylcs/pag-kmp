@@ -1,12 +1,43 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
+    jvm("desktop")
+
     androidTarget()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    cocoapods {
+        version = "1.0"
+        summary = "libpag-compose example."
+        homepage = "https://github.com/rachel-ylcs/pag-kmp/example"
+        ios.deploymentTarget = "15.0"
+
+        pod("libpag") {
+            version = libs.versions.pag.get()
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+        podfile = project.file("iosApp/Podfile")
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -23,11 +54,24 @@ kotlin {
         }
 
         val androidMain by getting {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.activity.compose)
             }
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
+
+        listOf(
+            iosX64Main,
+            iosArm64Main,
+            iosSimulatorArm64Main
+        ).forEach {
+            it.get().dependsOn(iosMain)
         }
     }
 }

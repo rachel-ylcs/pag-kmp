@@ -1,9 +1,11 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.vanniktech.mavenPublish)
@@ -30,6 +32,25 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    cocoapods {
+        summary = "A library for integrating PAG (Portable Animated Graphics) with Compose Multiplatform."
+        homepage = "https://github.com/rachel-ylcs/pag-kmp/"
+        ios.deploymentTarget = "10.0"
+
+        pod("libpag") {
+            version = libs.versions.pag.get()
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+
+        framework {
+            baseName = "libpag_cmp"
+            isStatic = true
+        }
+
+        xcodeConfigurationToNativeBuildType["CUSTOM_DEBUG"] = NativeBuildType.DEBUG
+        xcodeConfigurationToNativeBuildType["CUSTOM_RELEASE"] = NativeBuildType.RELEASE
+    }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
@@ -45,6 +66,7 @@ kotlin {
         }
 
         val androidMain by getting {
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.pag.android)
             }

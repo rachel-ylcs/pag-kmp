@@ -1,0 +1,23 @@
+PODS:
+  - example (1.0):
+    - libpag (= 4.4.31)
+  - libpag (4.4.31)
+
+DEPENDENCIES:
+  - example (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - libpag
+
+EXTERNAL SOURCES:
+  example:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  example: 30f715ef089e675c3e0e4f6a7b0bf6cb33deb566
+  libpag: 02562f77ae12d1219a6f819aa02bd49ca7fc1d9e
+
+PODFILE CHECKSUM: 74ba18a388e34fbf62cf39655f10fa90c145eac8
+
+COCOAPODS: 1.16.2
