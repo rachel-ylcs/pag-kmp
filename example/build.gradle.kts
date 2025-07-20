@@ -53,6 +53,14 @@ kotlin {
             }
         }
 
+        val desktopMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+            }
+        }
+
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
@@ -74,6 +82,17 @@ kotlin {
             it.get().dependsOn(iosMain)
         }
     }
+}
+
+compose.desktop {
+    application {
+        mainClass = "love.yinlin.libpag.example.MainKt"
+    }
+}
+
+tasks.withType<JavaExec> {
+    val libraryPath = project(":pag4j").projectDir.resolve(".cxx")
+    systemProperty("java.library.path", libraryPath)
 }
 
 android {

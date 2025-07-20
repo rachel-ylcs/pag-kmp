@@ -65,6 +65,13 @@ kotlin {
             }
         }
 
+        val desktopMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(project(":pag4j"))
+            }
+        }
+
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {

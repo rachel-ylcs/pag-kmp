@@ -1,0 +1,3 @@
+[submodule "pag4j/libpag"]
+	path = pag4j/libpag
+	url = https://github.com/Tencent/libpag.git

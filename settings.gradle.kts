@@ -14,5 +14,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "libpag-compose"
+include(":pag4j")
 include(":library")
 include(":example")
