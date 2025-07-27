@@ -36,6 +36,7 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        binaries.executable()
     }
 
     sourceSets {
@@ -80,6 +81,13 @@ kotlin {
             iosSimulatorArm64Main
         ).forEach {
             it.get().dependsOn(iosMain)
+        }
+
+        val wasmJsMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(devNpm("node-polyfill-webpack-plugin", "*"))
+            }
         }
     }
 }

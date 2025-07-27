@@ -54,6 +54,7 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        binaries.library()
     }
 
     sourceSets {
@@ -89,6 +90,13 @@ kotlin {
             iosSimulatorArm64Main
         ).forEach {
             it.get().dependsOn(iosMain)
+        }
+
+        val wasmJsMain by getting {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(npm("libpag", "4.5.0")) // libs.versions.pag.get()
+            }
         }
     }
 }
