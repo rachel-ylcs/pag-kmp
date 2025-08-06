@@ -2054,10 +2054,10 @@ launch-editor@^2.6.0:
     picocolors "^1.0.0"
     shell-quote "^1.8.1"
 
-libpag@4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/libpag/-/libpag-4.5.0.tgz#142a2d2d768345e16466e76a214a06f0dfeaf059"
-  integrity sha512-wCN3gSmY//BAvX4j1+c8OTxfvBXaEeycW1Vcr1lECBi9H+euBS+DzCzcuYs/CV1ILZxpWit4EORULzlcyK4jgw==
+libpag@4.5.1:
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/libpag/-/libpag-4.5.1.tgz#7c6e1c81b0396e031994d35d592dbc8a140281ae"
+  integrity sha512-xpKlHfeXccVfZOZ9SNmXDp/l4FT2+Dvzi+HZAM2/cO7SndfbSN9/82x6gttLxajHGjtmGb+nxgGIWbllwQN2Zg==
 
 loader-runner@^4.2.0:
   version "4.3.0"

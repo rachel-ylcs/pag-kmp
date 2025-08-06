@@ -95,7 +95,7 @@ kotlin {
         val wasmJsMain by getting {
             dependsOn(commonMain)
             dependencies {
-                implementation(npm("libpag", "4.5.0")) // libs.versions.pag.get()
+                implementation(npm("libpag", "4.5.1")) // libs.versions.pag.get()
             }
         }
     }

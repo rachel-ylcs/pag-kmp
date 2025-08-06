@@ -124,13 +124,12 @@ internal fun _PAGAnimation(
     LaunchedEffect(pagView.value, repeatCount, scaleMode, enableCache) {
         pagView.value?.let { view ->
             view.setRepeatCount(if (repeatCount == PAGConfig.INFINITY) 0 else repeatCount)
-            // https://github.com/Tencent/libpag/issues/2948
-//            view.setScaleMode(when (scaleMode) {
-//                PAGConfig.ScaleMode.None -> 0
-//                PAGConfig.ScaleMode.Stretch -> 1
-//                PAGConfig.ScaleMode.LetterBox -> 2
-//                PAGConfig.ScaleMode.Zoom -> 3
-//            })
+            view.setScaleMode(when (scaleMode) {
+                PAGConfig.ScaleMode.None -> 0
+                PAGConfig.ScaleMode.Stretch -> 1
+                PAGConfig.ScaleMode.LetterBox -> 2
+                PAGConfig.ScaleMode.Zoom -> 3
+            })
             view.setCacheEnabled(enableCache)
         }
     }
