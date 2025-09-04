@@ -174,7 +174,7 @@ JNIEXPORT jint JNICALL Java_org_libpag_PAGPlayer_scaleMode(JNIEnv* env, jobject 
   if (player == nullptr) {
     return 0;
   }
-  return player->scaleMode();
+  return static_cast<jint>(player->scaleMode());
 }
 
 JNIEXPORT void JNICALL Java_org_libpag_PAGPlayer_setScaleMode(JNIEnv* env, jobject thiz, jint value) {
@@ -182,7 +182,7 @@ JNIEXPORT void JNICALL Java_org_libpag_PAGPlayer_setScaleMode(JNIEnv* env, jobje
   if (player == nullptr) {
     return;
   }
-  player->setScaleMode(value);
+  player->setScaleMode(static_cast<PAGScaleMode>(value));
 }
 
 JNIEXPORT void JNICALL Java_org_libpag_PAGPlayer_nativeGetMatrix(JNIEnv* env, jobject thiz,

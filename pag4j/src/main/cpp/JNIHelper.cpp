@@ -22,6 +22,9 @@
 #include "JPAGLayerHandle.h"
 
 extern "C" jint JNI_OnLoad(JavaVM* vm, void*) {
+  if (vm) {
+    //no-op to avoid libpag compile -Wall -Werror.
+  }
   LOGI("PAG JNI_OnLoad Version: %s", pag::PAG::SDKVersion().c_str());
   return JNI_VERSION_1_4;
 }
@@ -57,6 +60,9 @@ jobject ToPAGLayerJavaObject(JNIEnv* env, std::shared_ptr<pag::PAGLayer> pagLaye
       }
 
       break;
+    }
+    default: {
+        // todo:: add more type of PAGLayer
     }
   }
   return layerObject;

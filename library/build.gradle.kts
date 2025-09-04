@@ -69,7 +69,7 @@ kotlin {
         val desktopMain by getting {
             dependsOn(commonMain)
             dependencies {
-                implementation(project(":pag4j"))
+                api(project(":pag4j"))
             }
         }
 
