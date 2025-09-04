@@ -125,7 +125,7 @@ JNIEXPORT jint JNICALL Java_org_libpag_PAGFile_timeStretchMode(JNIEnv* env, jobj
   if (pagFile == nullptr) {
     return 0;
   }
-  return pagFile->timeStretchMode();
+  return static_cast<jint>(pagFile->timeStretchMode());
 }
 
 JNIEXPORT void JNICALL Java_org_libpag_PAGFile_setTimeStretchMode(JNIEnv* env, jobject thiz, jint mode) {
@@ -133,7 +133,7 @@ JNIEXPORT void JNICALL Java_org_libpag_PAGFile_setTimeStretchMode(JNIEnv* env, j
   if (pagFile == nullptr) {
     return;
   }
-  pagFile->setTimeStretchMode(static_cast<Enum>(mode));
+  pagFile->setTimeStretchMode(static_cast<PAGTimeStretchMode>(mode));
 }
 
 JNIEXPORT void JNICALL Java_org_libpag_PAGFile_setDuration(JNIEnv* env, jobject thiz, jlong duration) {
